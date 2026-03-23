@@ -1,0 +1,40 @@
+Generating custom QKD physical dataset with 5000 simulated exchanges...
+Running Quantum Circuit Batch Simulations:   0%|          | 0/5000 [00:00<?, ?it/s]Running Quantum Circuit Batch Simulations:   0%|          | 1/5000 [00:05<7:50:57,  5.65s/it]Running Quantum Circuit Batch Simulations:   0%|          | 2/5000 [00:11<8:15:40,  5.95s/it]Running Quantum Circuit Batch Simulations:   0%|          | 3/5000 [00:16<7:41:30,  5.54s/it]Running Quantum Circuit Batch Simulations:   0%|          | 4/5000 [00:20<6:40:35,  4.81s/it]Running Quantum Circuit Batch Simulations:   0%|          | 5/5000 [00:26<7:05:38,  5.11s/it]Running Quantum Circuit Batch Simulations:   0%|          | 6/5000 [00:31<7:24:01,  5.33s/it]Running Quantum Circuit Batch Simulations:   0%|          | 7/5000 [00:36<6:53:42,  4.97s/it]Running Quantum Circuit Batch Simulations:   0%|          | 8/5000 [00:40<6:32:19,  4.72s/it]Running Quantum Circuit Batch Simulations:   0%|          | 9/5000 [00:46<7:11:57,  5.19s/it]Running Quantum Circuit Batch Simulations:   0%|          | 10/5000 [00:49<6:25:01,  4.63s/it]Running Quantum Circuit Batch Simulations:   0%|          | 10/5000 [00:52<7:19:12,  5.28s/it]
+Traceback (most recent call last):
+  File "/home/reet/QKD/src/generate_qkd_dataset.py", line 130, in <module>
+  File "/home/reet/QKD/src/generate_qkd_dataset.py", line 109, in run_dataset_generation
+    
+  File "/home/reet/QKD/src/generate_qkd_dataset.py", line 69, in simulate_fast
+    qc.measure(i, i)
+             ^^^^^^^^
+  File "/home/reet/QKD/venv/lib/python3.12/site-packages/qiskit/compiler/transpiler.py", line 291, in transpile
+    out_circuits = pm.run(circuits, callback=callback, num_processes=num_processes)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/reet/QKD/venv/lib/python3.12/site-packages/qiskit/transpiler/passmanager.py", line 420, in run
+    return super().run(circuits, output_name, callback, num_processes=num_processes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/reet/QKD/venv/lib/python3.12/site-packages/qiskit/transpiler/passmanager.py", line 457, in wrapper
+    return meth(*meth_args, **meth_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/reet/QKD/venv/lib/python3.12/site-packages/qiskit/transpiler/passmanager.py", line 197, in run
+    return super().run(
+           ^^^^^^^^^^^^
+  File "/home/reet/QKD/venv/lib/python3.12/site-packages/qiskit/passmanager/passmanager.py", line 255, in run
+    return parallel_map(
+           ^^^^^^^^^^^^^
+  File "/home/reet/QKD/venv/lib/python3.12/site-packages/qiskit/utils/parallel.py", line 316, in parallel_map
+    return list(executor.map(_task_wrapper, work_items))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/process.py", line 642, in _chain_from_iterable_of_lists
+    for element in iterable:
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "/usr/lib/python3.12/threading.py", line 355, in wait
+    waiter.acquire()
+KeyboardInterrupt
