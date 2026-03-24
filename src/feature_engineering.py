@@ -12,7 +12,11 @@ def main():
     df = pd.read_csv('../data/raw/custom_qkd_dataset.csv')
 
     # Separate features and target
-    X = df.drop(columns=['Label'])
+    drop_cols = ['Label']
+    if 'Distance_km' in df.columns:
+        drop_cols.append('Distance_km')
+    X = df.drop(columns=drop_cols)
+
     y = df['Label']
 
     print("Encoding labels...")

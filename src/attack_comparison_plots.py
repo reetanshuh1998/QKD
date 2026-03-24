@@ -8,8 +8,8 @@ import os
 os.makedirs('../models/plots', exist_ok=True)
 
 print("Loading raw data...")
-df = pd.read_csv('../data/raw/qkd_dataset_randomized.csv')
-key_features = ['QBER', 'Measurement_entropy', 'Arrival_var']
+df = pd.read_csv('../data/raw/custom_qkd_dataset.csv')
+key_features = ['Q_mu', 'E_mu', 'Rx_Power_Mean']
     
 plt.figure(figsize=(18, 5))
 for i, feature in enumerate(key_features):

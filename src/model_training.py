@@ -13,18 +13,25 @@ from tensorflow.keras.callbacks import EarlyStopping
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def build_autoencoder(input_dim, latent_dim):
-    # Encoder - Strict Bottleneck 6 -> 5 -> 3
+    # Encoder - Deeper architecture for 29 dimensions
     inputs = Input(shape=(input_dim,))
     
-    x = Dense(5)(inputs)
+    x = Dense(32)(inputs)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
-    latent = Dense(latent_dim, name='latent_layer')(x)
-    encoded = Activation('relu')(latent)
+    x = Dense(16)(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    
+    latent = Dense(latent_dim, activation='relu', name='latent_layer')(x)
     
     # Decoder
-    x = Dense(5)(encoded)
+    x = Dense(16)(latent)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    
+    x = Dense(32)(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
@@ -56,7 +63,7 @@ def main():
     print(f"Data Split shapes: X_train_scaled: {X_train_scaled.shape}, X_test_scaled: {X_test_scaled.shape}")
     
     input_dim = X_train_scaled.shape[1] # Use scaled data for input_dim
-    latent_dim = 3  # Reduced feature dimension
+    latent_dim = 8  # Expanded feature dimension to capture WCP variances
     
     print("\n--- Training Deep Learning Autoencoder ---")
     autoencoder, encoder = build_autoencoder(input_dim, latent_dim)
@@ -111,9 +118,11 @@ def main():
     print("\n--- Training Hybrid XGBoost Model ---")
     # Using XGBClassifier
     xgb = XGBClassifier(
-        n_estimators=150, 
-        max_depth=6, 
-        learning_rate=0.1, 
+        n_estimators=300, 
+        max_depth=8, 
+        learning_rate=0.05,
+        subsample=0.8,
+        colsample_bytree=0.8,
         eval_metric='mlogloss',
         random_state=42
     )

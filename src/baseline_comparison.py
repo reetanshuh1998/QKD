@@ -36,7 +36,7 @@ def main():
     
     # 2. Train Standalone XGBoost (Baseline Model)
     print("\nTraining Baseline Standalone XGBoost...")
-    baseline_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=200, max_depth=5)
+    baseline_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=100, max_depth=5, learning_rate=0.05, n_jobs=-1)
     baseline_xgb.fit(X_train_scaled, y_train)
     y_pred_base = baseline_xgb.predict(X_test_scaled)
     baseline_accuracy = accuracy_score(y_test, y_pred_base)
@@ -61,7 +61,7 @@ def main():
     X_test_hybrid = np.hstack((X_test_scaled, X_test_latent, X_test_mse))
     
     print("\nTraining Hybrid Autoencoder + XGBoost...")
-    hybrid_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=200, max_depth=5)
+    hybrid_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=250, max_depth=8, learning_rate=0.08, subsample=0.8, colsample_bytree=0.8, n_jobs=-1)
     hybrid_xgb.fit(X_train_hybrid, y_train)
     y_pred_hybrid = hybrid_xgb.predict(X_test_hybrid)
     hybrid_accuracy = accuracy_score(y_test, y_pred_hybrid)
