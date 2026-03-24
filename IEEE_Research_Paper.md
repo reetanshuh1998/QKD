@@ -9,7 +9,7 @@
 ## Abstract
 Quantum Key Distribution (QKD) mathematically guarantees information-theoretic security heavily reliant on the laws of quantum mechanics. However, realistic deployment necessitates imperfect hardware, primarily Weak Coherent Pulses (WCP) utilizing heavily attenuated lasers and Avalanche Photodiodes (APDs). These classical imperfections structurally open QKD to deterministically engineered implementation vulnerabilities, such as Photon-Number Splitting (PNS), Time-Shift transmission delays, and intense-light Detector Blinding. While Machine Learning (ML) topologies are routinely trained on generic dataset abstracts to baseline system noise, they are historically trained on naive simulations lacking decoy-state yield physics, rendering their application incomplete and vulnerable to intelligent adversarial evasion (White-Box Gradient Spoofing).
 
-In this paper, we propose a functionally rigorous **Hybrid Autoencoder-Gradient Architecture** dynamically trained on an explicitly accurate, physics-driven Decoy-state BB84 WCP simulator. By extracting precise optical geometries—such as Signal/Decoy Yields, Double-Click Rates, and Continuous-Wave back-scatter Intensities—our network inherently maps actual thermodynamic anomalies triggered by leading hardware-layer intrusions. We route these highly-dimensional yield discrepancies through a dense Autoencoder latent bottleneck to seamlessly filter generic depolarizing variances natively. The reconstructed Mean Squared Error (MSE) is vertically pipelined into a rigidly non-continuous gradient classifier (XGBoost). Our empirical results establish an 87.5% ceiling mapping across eight sophisticated structural implementations. More crucially, subjecting this hybrid pipeline to native continuous-gradient Adversarial Evasion completely fails to puncture the defense layer; the Autoencoder's fluid optimization bounds directly cascade into the non-differentiable decision boundaries of XGBoost, permanently blinding AI-driven eavesdroppers from identifying bypass gradients. 
+In this paper, we propose a functionally rigorous **Hybrid Autoencoder-Gradient Architecture** dynamically trained on an explicitly accurate, physics-driven Decoy-state BB84 WCP simulator. By extracting precise optical geometries—such as Signal/Decoy Yields, Double-Click Rates, and Continuous-Wave back-scatter Intensities—our network inherently maps actual thermodynamic anomalies triggered by leading hardware-layer intrusions. We route these highly-dimensional yield discrepancies through a dense Autoencoder latent bottleneck to seamlessly filter generic depolarizing variances natively. The reconstructed Mean Squared Error (MSE) is vertically pipelined into a rigidly non-continuous gradient classifier (XGBoost). Our empirical results prove standard Deep Neural Networks (DNN) peak precisely around $\sim88.4\%$; yet our transparent Hybrid model closely matches this boundary ($\sim86.6\%$) structurally allowing critical SHAP explainability matrices bounding each quantum physics variable natively preventing black-box isolation. Moreover, subjecting this hybrid pipeline to native continuous-gradient Adversarial Evasion completely fails to puncture the defense layer; the Autoencoder's fluid optimization bounds directly cascade into the non-differentiable decision boundaries of XGBoost, permanently blinding AI-driven eavesdroppers from identifying bypass gradients. 
 
 ---
 
@@ -46,6 +46,9 @@ We completely abandoned generic integer metrics, extracting continuous observabl
 *   `RNG Bias`: Artificial probability shifts.
 *   `Combined Sophisticated Vectors`.
 
+![Mechanistic Attack Signatures across Physical Observables](models/plots/attack_signatures_across_observables.png)
+*Fig 1. A 4-Panel Mechanistic Evaluation completely overriding identical attenuation limits natively mapping Yield Ratios ($R_Q$), Power Distributions, and Timing Variance dynamically identifying specific attack vectors outside arbitrary boundary classifications.*
+
 ---
 
 ## III. The Hybrid Machine Learning Architecture
@@ -57,7 +60,7 @@ We establish a 256-128-64 hierarchical Keras Deep Autoencoder specifically train
 When the Autoencoder reconstructs incoming data arrays, deviation from the pristine BB84 physical geometry directly creates a measurable **Mean Squared Error (MSE)** vector. A Blinding attack—despite matching bits perfectly—drastically diverges Yield formulas forcing immense reconstruction explosions natively isolated by MSE bounds.
 
 ![Feature Importance Extraction](models/plots/hybrid_feature_importance.png)
-*Fig 1. Demonstration identifying how MSE dynamically overrides generic feature mappings natively ensuring structural detection natively.*
+*Fig 2. Demonstration identifying how MSE dynamically overrides generic feature mappings natively ensuring structural detection natively.*
 
 ### B. Structural Classification (Gradient Boosting / XGBoost)
 The output Latent Geometry and MSE vectors merge with the raw observational arrays creating a multi-dimensional matrix. This mathematically diverse feature mapping targets XGBoost, iteratively optimizing stochastic gradients internally evaluating orthogonal decision boundaries systematically immune to spatial deformation topologies natively blocking gradient-based evasion loops natively. 
@@ -69,14 +72,14 @@ The output Latent Geometry and MSE vectors merge with the raw observational arra
 We executed extensive evaluation blocks testing natively via exhaustive topological search algorithms systematically separating accuracy geometries globally.
 
 ### Empirical Convergence Ceiling
-*   **Deep Neural Network (100-Epoch Dense MLP):** 87.46%
-*   **Standalone Gradient Boosting (XGBoost):** 87.47%
-*   **Hybrid Autoencoder + XGBoost:** **87.51%**
+*   **Standalone Gradient Boosting (XGBoost):** 85.94%
+*   **Hybrid Autoencoder + XGBoost:** 86.62%
+*   **Deep Neural Network (130-Epoch Dense MLP & BatchNorm):** **88.38%**
 
-Because physically disparate execution networks repeatedly collide identically adjacent to **~87.5%**, we established empirical correlation proving standard environmental dark counts inherently mask a strict mathematical perimeter natively overlapping precisely an identical geometric signature natively preventing artificial 100% extraction natively. 
+Because physically disparate execution networks repeatedly evaluate identically adjacent to current validation barriers, we establish empirical correlation proving highly dimensional Continuous Neural Networks (DNN) statistically dominate Decoy-State mapping distributions perfectly natively. However, implementing our distinct Autoencoder+XGBoost fusion captures near-maximum SOTA capacities completely discarding opaque neural computations. In explicit QKD environments, establishing verifiable transparency is objectively critical.
 
 ![Receiver Operating Characteristics](models/plots/roc_curves.png)
-*Fig 2. ROC metrics explicitly evaluating multi-class classification limits globally identifying precise AUC topological constraints locally predicting intrusion parameters optimally.*
+*Fig 3. ROC metrics explicitly evaluating multi-class classification limits globally identifying precise AUC topological constraints locally predicting intrusion parameters optimally.*
 
 ---
 
@@ -94,7 +97,7 @@ Because generic continuous limits strictly map differentiable variables, an adve
 ---
 
 ## VI. Conclusion
-Standard neural classification systems isolate implementation vulnerabilities mathematically but fail robustly against native continuous spatial permutations generated intelligently explicitly minimizing operational geometries. Utilizing a highly rigorous Decoy-state BB84 generator, we empirically verified native hybrid topologies sequentially separating deep reconstruction errors inherently alongside strictly discrete orthogonal evaluation branches natively mapping spatial variables globally. This permanently blindfolds AI-driven physical manipulations effectively securing next-generation Quantum Key Distribution optical layers optimally against aggressive active intrusion combinations structurally ensuring thermodynamic accuracy globally.
+Standard neural classification systems isolate implementation vulnerabilities optimally evaluating absolute accuracy ceilings ($\sim88.38\%$), yet operate fundamentally opaque 'black boxes' rendering native protocol evaluation fundamentally unsafe natively. Utilizing a highly rigorous Decoy-state BB84 generator masking raw distance propagation limits natively ($R_Q = Y_{\nu}/Y_{\mu}$), we essentially verified Hybrid execution models intrinsically trading fractional detection accuracies in exchange for totally explainable boundaries structurally mapping native spatial variables precisely. This formally blindfolds AI-driven continuous parameter manipulations natively stopping White-Box iteration globally while preserving strictly readable verification environments dynamically sealing real-world Quantum Key layer implementation architectures.
 
 ---
 
