@@ -37,7 +37,7 @@ Rigorous classical regression identifying spatial dependencies between `Yield_De
 
 ### 2. The Autoencoder Hybrid (The Explainable Architecture)
 A comprehensive topological fusion isolating absolute structural anomalies inherently balancing SOTA detection parameters with transparent analysis:
-*   A Deep Keras **Autoencoder** strictly learns the generalized physics of pristine `Normal` QKD yields and error tolerances, compressing signals into a rigid 3-dimensional latent bottleneck.
+*   A Deep Keras **Autoencoder** strictly learns the generalized physics of pristine `Normal` QKD yields and error tolerances, compressing signals into a rigid 16-dimensional latent bottleneck.
 *   By projecting all traffic through this bottleneck, we extract deterministic **Mean Squared Error (MSE)** reconstruction bounds perfectly spiking across eavesdropper arrays where anomalous optical power or suppressed single-photons shatter normal bounds.
 *   These anomalies are horizontally piped backward into an independently tuned **Gradient Boosting (XGBoost)** tree cascade. This formulation trades a marginal mathematical accuracy gap against pure Deep Neural Networks (DNNs) in exchange for absolute **Explainability**, retaining transparent SHAP vectors structurally confirming *why* an anomaly triggered dynamically.
 
@@ -55,7 +55,7 @@ Inside the `models/plots/` repository, the automated pipeline generates empirica
 ![Mechanistic Attack Signatures](models/plots/attack_signatures_across_observables.png)
 *A flagship 4-panel graphic directly tracking physical relationships mathematically overriding distance degradation limits via log-ratios ($R_Q = Y_{\nu}/Y_{\mu}$).*
 
-*   `architecture_comparison.png`: Empirically contrasting the natively unrestrained Deep Neural Network ($\sim88.3\%$) natively against our Hybrid pipeline and standalone boundary classifiers.
+*   `architecture_comparison.png`: Empirically contrasting the natively unrestrained Deep Neural Network ($\sim88.88\%$) natively against our Hybrid pipeline and standalone boundary classifiers.
 *   `hybrid_feature_importance.png`: Graphically establishing the absolute dominance of the Autoencoder's MSE reconstruction bounds driving XGBoost topological mappings alongside native physical measurements like `Yield_Decoy` and `QBER`.
 *   `confusion_matrix.png`: Absolute class separation mapping demonstrating overlapping vectors and false positives corresponding inherently to highly identical physical signatures.
 *   `roc_curves.png`: Receiver Operating Characteristic limits evaluating the hybridized algorithm across all 8 tracking modes.

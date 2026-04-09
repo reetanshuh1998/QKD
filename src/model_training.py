@@ -16,22 +16,22 @@ def build_autoencoder(input_dim, latent_dim):
     # Encoder - Deeper architecture for 29 dimensions
     inputs = Input(shape=(input_dim,))
     
-    x = Dense(32)(inputs)
+    x = Dense(64)(inputs)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
-    x = Dense(16)(x)
+    x = Dense(32)(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
     latent = Dense(latent_dim, activation='relu', name='latent_layer')(x)
     
     # Decoder
-    x = Dense(16)(latent)
+    x = Dense(32)(latent)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
-    x = Dense(32)(x)
+    x = Dense(64)(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
@@ -63,13 +63,14 @@ def main():
     print(f"Data Split shapes: X_train_scaled: {X_train_scaled.shape}, X_test_scaled: {X_test_scaled.shape}")
     
     input_dim = X_train_scaled.shape[1] # Use scaled data for input_dim
-    latent_dim = 8  # Expanded feature dimension to capture WCP variances
+    latent_dim = 16  # Expanded feature dimension to capture WCP variances completely
     
     print("\n--- Training Deep Learning Autoencoder ---")
     autoencoder, encoder = build_autoencoder(input_dim, latent_dim)
     
     # 4. Filter Normal Traffic for Autoencoder Training (Anomaly Detection paradigm)
     try:
+        label_encoder = joblib.load('../models/label_encoder.pkl')
         normal_label = label_encoder.transform(['normal'])[0]
     except Exception:
         # Fallback if label encoding is different or 'normal' not found
@@ -99,19 +100,19 @@ def main():
     print("Autoencoder models saved.")
     
     print("\n--- Extracting Latent Representations ---")
-    latent_train = encoder.predict(X_train)
-    latent_test = encoder.predict(X_test)
+    latent_train = encoder.predict(X_train_scaled)
+    latent_test = encoder.predict(X_test_scaled)
     
     # Calculate reconstruction error as an additional feature
-    train_reconstructions = autoencoder.predict(X_train)
-    test_reconstructions = autoencoder.predict(X_test)
+    train_reconstructions = autoencoder.predict(X_train_scaled)
+    test_reconstructions = autoencoder.predict(X_test_scaled)
     
-    mse_train = np.mean(np.square(X_train - train_reconstructions), axis=1).reshape(-1, 1)
-    mse_test = np.mean(np.square(X_test - test_reconstructions), axis=1).reshape(-1, 1)
+    mse_train = np.mean(np.square(X_train_scaled - train_reconstructions), axis=1).reshape(-1, 1)
+    mse_test = np.mean(np.square(X_test_scaled - test_reconstructions), axis=1).reshape(-1, 1)
     
     # Form the Hybrid Dataset: Original Features + Latent Vector + MSE Reconstruct Error
-    X_train_hybrid = np.hstack((X_train, latent_train, mse_train))
-    X_test_hybrid = np.hstack((X_test, latent_test, mse_test))
+    X_train_hybrid = np.hstack((X_train_scaled, latent_train, mse_train))
+    X_test_hybrid = np.hstack((X_test_scaled, latent_test, mse_test))
     
     print(f"Hybrid Features Shape: {X_train_hybrid.shape}")
     

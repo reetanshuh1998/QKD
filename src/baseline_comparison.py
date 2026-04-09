@@ -61,7 +61,7 @@ def main():
     X_test_hybrid = np.hstack((X_test_scaled, X_test_latent, X_test_mse))
     
     print("\nTraining Hybrid Autoencoder + XGBoost...")
-    hybrid_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=250, max_depth=8, learning_rate=0.08, subsample=0.8, colsample_bytree=0.8, n_jobs=-1)
+    hybrid_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=300, max_depth=5, min_child_weight=3, gamma=0.3, learning_rate=0.05, subsample=1.0, colsample_bytree=0.9, n_jobs=-1)
     hybrid_xgb.fit(X_train_hybrid, y_train)
     y_pred_hybrid = hybrid_xgb.predict(X_test_hybrid)
     hybrid_accuracy = accuracy_score(y_test, y_pred_hybrid)
@@ -70,8 +70,8 @@ def main():
     # 4. Train Deep Neural Network (DNN)
     print("\nTraining Deep Neural Network (DNN)...")
     from tensorflow.keras.models import Sequential
-    from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
-    from tensorflow.keras.callbacks import EarlyStopping
+    from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
+    from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
     from sklearn.preprocessing import LabelBinarizer
     
     lb = LabelBinarizer()
@@ -79,20 +79,33 @@ def main():
     y_test_ohe = lb.transform(y_test)
     
     dnn = Sequential([
-        Dense(64, activation='relu', input_shape=(X_train_scaled.shape[1],)),
+        Dense(128, input_shape=(X_train_scaled.shape[1],)),
         BatchNormalization(),
+        Activation('leaky_relu'),
         Dropout(0.3),
-        Dense(32, activation='relu'),
+        
+        Dense(64),
         BatchNormalization(),
+        Activation('leaky_relu'),
         Dropout(0.3),
-        Dense(16, activation='relu'),
+        
+        Dense(32),
+        BatchNormalization(),
+        Activation('leaky_relu'),
+        Dropout(0.2),
+        
+        Dense(16),
+        BatchNormalization(),
+        Activation('leaky_relu'),
+        
         Dense(y_train_ohe.shape[1], activation='softmax')
     ])
     
     dnn.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     early_stop_dnn = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-5, verbose=0)
     
-    dnn.fit(X_train_scaled, y_train_ohe, epochs=100, batch_size=64, validation_split=0.2, callbacks=[early_stop_dnn], verbose=0)
+    dnn.fit(X_train_scaled, y_train_ohe, epochs=150, batch_size=64, validation_split=0.2, callbacks=[early_stop_dnn, reduce_lr], verbose=0)
     
     y_pred_dnn_prob = dnn.predict(X_test_scaled)
     y_pred_dnn = np.argmax(y_pred_dnn_prob, axis=1)

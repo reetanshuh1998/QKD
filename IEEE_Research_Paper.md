@@ -73,8 +73,8 @@ We executed extensive evaluation blocks testing natively via exhaustive topologi
 
 ### Empirical Convergence Ceiling
 *   **Standalone Gradient Boosting (XGBoost):** 85.94%
-*   **Hybrid Autoencoder + XGBoost:** 86.62%
-*   **Deep Neural Network (130-Epoch Dense MLP & BatchNorm):** **88.38%**
+*   **Hybrid Autoencoder + XGBoost:** 85.88%
+*   **Deep Neural Network (150-Epoch Dense LeakyReLU & ReduceLROnPlateau):** **88.88%**
 
 Because physically disparate execution networks repeatedly evaluate identically adjacent to current validation barriers, we establish empirical correlation proving highly dimensional Continuous Neural Networks (DNN) statistically dominate Decoy-State mapping distributions perfectly natively. However, implementing our distinct Autoencoder+XGBoost fusion captures near-maximum SOTA capacities completely discarding opaque neural computations. In explicit QKD environments, establishing verifiable transparency is objectively critical.
 
@@ -97,7 +97,7 @@ Because generic continuous limits strictly map differentiable variables, an adve
 ---
 
 ## VI. Conclusion
-Standard neural classification systems isolate implementation vulnerabilities optimally evaluating absolute accuracy ceilings ($\sim88.38\%$), yet operate fundamentally opaque 'black boxes' rendering native protocol evaluation fundamentally unsafe natively. Utilizing a highly rigorous Decoy-state BB84 generator masking raw distance propagation limits natively ($R_Q = Y_{\nu}/Y_{\mu}$), we essentially verified Hybrid execution models intrinsically trading fractional detection accuracies in exchange for totally explainable boundaries structurally mapping native spatial variables precisely. This formally blindfolds AI-driven continuous parameter manipulations natively stopping White-Box iteration globally while preserving strictly readable verification environments dynamically sealing real-world Quantum Key layer implementation architectures.
+Standard neural classification systems isolate implementation vulnerabilities optimally evaluating absolute accuracy ceilings ($\sim88.88\%$), yet operate fundamentally opaque 'black boxes' rendering native protocol evaluation fundamentally unsafe natively. Utilizing a highly rigorous Decoy-state BB84 generator masking raw distance propagation limits natively ($R_Q = Y_{\nu}/Y_{\mu}$), we essentially verified Hybrid execution models intrinsically trading fractional detection accuracies in exchange for totally explainable boundaries structurally mapping native spatial variables precisely. This formally blindfolds AI-driven continuous parameter manipulations natively stopping White-Box iteration globally while preserving strictly readable verification environments dynamically sealing real-world Quantum Key layer implementation architectures.
 
 ---
 

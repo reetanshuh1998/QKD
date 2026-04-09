@@ -34,34 +34,40 @@ def main():
     encoder = load_model('../models/encoder.keras')
     
     print("Generating Hybrid Features...")
-    latent_train = encoder.predict(X_train, verbose=0)
-    latent_test = encoder.predict(X_test, verbose=0)
+    scaler = joblib.load('../models/scaler.pkl')
+    X_train_scaled = scaler.transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    latent_train = encoder.predict(X_train_scaled, verbose=0)
+    latent_test = encoder.predict(X_test_scaled, verbose=0)
     
-    train_reconst = autoencoder.predict(X_train, verbose=0)
-    test_reconst = autoencoder.predict(X_test, verbose=0)
+    train_reconst = autoencoder.predict(X_train_scaled, verbose=0)
+    test_reconst = autoencoder.predict(X_test_scaled, verbose=0)
     
-    mse_train = np.mean(np.square(X_train - train_reconst), axis=1).reshape(-1, 1)
-    mse_test = np.mean(np.square(X_test - test_reconst), axis=1).reshape(-1, 1)
+    mse_train = np.mean(np.square(X_train_scaled - train_reconst), axis=1).reshape(-1, 1)
+    mse_test = np.mean(np.square(X_test_scaled - test_reconst), axis=1).reshape(-1, 1)
     
-    X_train_hybrid = np.hstack((X_train, latent_train, mse_train))
-    X_test_hybrid = np.hstack((X_test, latent_test, mse_test))
+    X_train_hybrid = np.hstack((X_train_scaled, latent_train, mse_train))
+    X_test_hybrid = np.hstack((X_test_scaled, latent_test, mse_test))
     
     print("Starting Hyperparameter Tuning on XGBoost (RandomizedSearchCV)...")
     # Define Parameter Grid
     param_grid = {
-        'n_estimators': [100, 200, 300, 400],
-        'max_depth': [3, 5, 7, 9, 12],
-        'learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
+        'n_estimators': [150, 300, 400, 500],
+        'max_depth': [5, 7, 9, 12, 15],
+        'learning_rate': [0.01, 0.05, 0.1, 0.2],
         'subsample': [0.7, 0.8, 0.9, 1.0],
-        'colsample_bytree': [0.7, 0.8, 0.9, 1.0]
+        'colsample_bytree': [0.7, 0.8, 0.9, 1.0],
+        'gamma': [0, 0.1, 0.2, 0.3],
+        'min_child_weight': [1, 3, 5, 7]
     }
     
     xgb_base = XGBClassifier(eval_metric='mlogloss', random_state=42)
     cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
-    # Using 15 iterations to balance speed and finding better configurations
+    # Using 10 iterations to rigorously explore deeply orthogonal boundaries safely natively
     random_search = RandomizedSearchCV(
-        xgb_base, param_grid, n_iter=15, 
-        scoring='accuracy', cv=cv, verbose=1, 
+        xgb_base, param_grid, n_iter=10, 
+        scoring='accuracy', cv=cv, verbose=2, 
         random_state=42, n_jobs=-1
     )
     
