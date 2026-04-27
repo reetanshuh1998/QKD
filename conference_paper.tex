@@ -29,7 +29,7 @@ Email Address or ORCID}
 \begin{abstract}
 Quantum Key Distribution (QKD) offers information-theoretic security grounded in quantum mechanics, yet practical implementations using Weak Coherent Pulse (WCP) sources and avalanche photodiode (APD) detectors introduce exploitable hardware vulnerabilities. Attacks such as Photon-Number Splitting (PNS), detector blinding, and Trojan-horse probing can evade conventional Quantum Bit Error Rate (QBER) monitoring. Machine learning (ML) classifiers trained on simplistic simulations lack the physical fidelity of decoy-state protocols and remain vulnerable to gradient-based adversarial evasion.
 
-We present a hybrid detection architecture combining a deep autoencoder trained exclusively on normal QKD sessions with an XGBoost gradient-boosted classifier. The system is trained on a purpose-built Monte Carlo simulator implementing the three-intensity decoy-state BB84 protocol, producing 30 physically motivated session-level observables including per-intensity gains ($Q_\mu$, $Q_\nu$, $Q_0$), basis-conditional QBERs, double-click rates, and optical power monitor readings. Eight operational classes---one normal and seven attack scenarios---are distinguished. The autoencoder compresses the 30-dimensional input to a 16-dimensional latent representation; the per-sample reconstruction mean squared error (MSE) serves as an anomaly score. The concatenated 47-dimensional hybrid feature vector is classified by XGBoost. In benchmarking, the hybrid autoencoder--XGBoost model achieves 88.20\% test accuracy, matching a standalone deep neural network (DNN), while providing SHAP-based feature-level interpretability and structural adversarial resilience. Under a white-box gradient evasion attack, detection of adversarial traffic drops from 94.13\% to 57.47\%---yet the hybrid model retains substantially higher resilience than a pure neural classifier, whose differentiable boundaries can be fully bypassed.
+We present a hybrid detection architecture combining a deep autoencoder trained exclusively on normal QKD sessions with an XGBoost gradient-boosted classifier. The system is trained on a purpose-built Monte Carlo simulator implementing the three-intensity decoy-state BB84 protocol, producing 30 physically motivated session-level observables including per-intensity gains ($Q_\mu$, $Q_\nu$, $Q_0$), basis-conditional QBERs, double-click rates, and optical power monitor readings. Eight operational classes---one normal and seven attack scenarios---are distinguished. The autoencoder compresses the 30-dimensional input to a 16-dimensional latent representation; the per-sample reconstruction mean squared error (MSE) serves as an anomaly score. The concatenated 47-dimensional hybrid feature vector is classified by XGBoost. In benchmarking, the hybrid autoencoder--XGBoost model achieves 88.18\% test accuracy, comparable to a standalone deep neural network (DNN) at 89.44\%, while providing SHAP-based feature-level interpretability and structural adversarial resilience. Under a white-box gradient evasion attack, detection of adversarial traffic drops from 94.13\% to 57.47\%---yet the hybrid model retains substantially higher resilience than a pure neural classifier, whose differentiable boundaries can be fully bypassed.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -158,14 +158,14 @@ Table~\ref{tab:results} summarizes test-set accuracy across the three architectu
 \toprule
 \textbf{Architecture} & \textbf{Test Accuracy} \\
 \midrule
-Standalone XGBoost & 85.94\% \\
-Hybrid (AE + XGBoost) & \textbf{88.20\%} \\
-Deep Neural Network & 88.88\% \\
+Standalone XGBoost & 86.92\% \\
+Hybrid (AE + XGBoost) & \textbf{88.18\%} \\
+Deep Neural Network & 89.44\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The DNN achieves the highest raw accuracy. The hybrid model achieves comparable accuracy---and with the 30-feature dataset including \texttt{Double\_Click\_Rate} reaches 88.20\%---while providing two critical advantages for QKD deployment: (1)~SHAP-based interpretability enabling operators to verify which physical observables triggered a detection, and (2)~adversarial resilience demonstrated in Section~\ref{sec:adversarial}.
+The DNN achieves the highest raw accuracy at 89.44\%. The hybrid model attains 88.18\%, closing the gap to within one percentage point while providing two critical advantages for operational QKD deployment: (1)~SHAP-based interpretability enabling operators to verify which physical observables triggered a detection, and (2)~structural adversarial resilience demonstrated in Section~\ref{sec:adversarial}.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=\linewidth]{models/plots/roc_curves.png}}

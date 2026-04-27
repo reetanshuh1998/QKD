@@ -61,7 +61,7 @@ def main():
     X_test_hybrid = np.hstack((X_test_scaled, X_test_latent, X_test_mse))
     
     print("\nTraining Hybrid Autoencoder + XGBoost...")
-    hybrid_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=300, max_depth=5, min_child_weight=3, gamma=0.3, learning_rate=0.05, subsample=1.0, colsample_bytree=0.9, n_jobs=-1)
+    hybrid_xgb = XGBClassifier(eval_metric='mlogloss', random_state=42, n_estimators=300, max_depth=8, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8, n_jobs=-1)
     hybrid_xgb.fit(X_train_hybrid, y_train)
     y_pred_hybrid = hybrid_xgb.predict(X_test_hybrid)
     hybrid_accuracy = accuracy_score(y_test, y_pred_hybrid)
