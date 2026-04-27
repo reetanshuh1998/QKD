@@ -1,61 +1,99 @@
-# QKD Eavesdropper Detection: Hybrid Autoencoder-XGBoost Architecture
+# QKD Eavesdropper Detection: Hybrid Autoencoder–XGBoost Architecture
 
-## 📖 Motivation & Abstract
-Quantum Key Distribution (QKD) guarantees theoretically unbreakable encryption natively underpinned by the laws of quantum mechanics. However, practical QKD implementations utilizing imperfect hardware (like attenuated lasers or Avalanche Photodiodes) introduce deterministic physical vulnerabilities.
+## Overview
 
-The primary motivation of this project is to construct a **mathematically rigorous, physics-driven Machine Learning intrusion detection system**. Instead of manipulating arbitrary, theoretical datasets, we explicitly modeled real-time quantum exchanges using **Decoy-state BB84 protocols with Weak Coherent Pulses (WCP)**. We natively track precise physical and optical metrics, extracting stochastic hardware-level anomalies explicitly corresponding to advanced physical layer intrusions.
+This repository implements a machine learning pipeline for detecting eavesdropping attacks in Quantum Key Distribution (QKD) systems using the decoy-state BB84 protocol with Weak Coherent Pulse (WCP) sources.
 
----
+The system consists of:
+1. A **Monte Carlo BB84 simulator** generating physically motivated session-level features
+2. A **hybrid detection architecture** combining a deep autoencoder (anomaly feature extraction) with XGBoost (classification)
+3. An **adversarial resilience evaluation** demonstrating robustness against gradient-based evasion
 
-## 🔬 Custom Dataset Generation (Decoy-state BB84 Simulator)
-Rather than relying on outdated static datasets or toy models without decoy-state mechanics, we mapped a pure physical framework simulating tens of thousands of photons per session.
+## Dataset Generation (Decoy-State BB84 Simulator)
 
-### **The Physics Evaluated**:
-1.  **Poisson Photon Statistics**: Actively mapping the exact probability distributions for WCP signal ($\mu=0.5$), decoy ($\nu=0.1$), and vacuum states natively resolving multi-photon vulnerabilities.
-2.  **Hardware & Channel Loss**: Incorporating classical transmission dependencies like $0.2 \text{ dB/km}$ optical fiber degradation, explicit $10^{-5}$ dark count probabilities, and realistic global detector efficiencies ($\eta_d$).
-3.  **Physical Features Monitored**: Utilizing metrics standard to classical QKD research literature, including `Yield_Signal`, `Yield_Decoy`, `QBER_Signal_X/Z`, `Monitor_Intensity_Mean`, `Double_Click_Rate`, and `Bob_Basis_Bias`.
+The simulator (`src/generate_qkd_dataset.py`) produces synthetic QKD session data without relying on circuit simulators. Each session generates 10,000 pulses and records 30 physical observables.
 
-### **The 8 Targeted Anomaly Classes**:
-- `Normal Traffic` (Pristine background WCP exchange)
-- `Intercept-Resend / MITM Attack` (Spiking generic QBER signatures and jitter)
-- `Photon Number Splitting (PNS) Attack` (Erasing Decoy-State yields precipitously)
-- `Trojan-Horse Attack` (Triggering incoming probe light intensity monitors)
-- `Wavelength-Dependent Trojan Attack` (Structurally collapsing Bob's 50/50 basis choice to an 80/20 forced matrix)
-- `Random Number Generator (RNG) Attack` (Isolating predictive variance biases)
-- `Detector Blinding Attack` (Forcing perfect measurements while crashing APD double clicks entirely and maximizing optical monitors)
-- `Combined Sophisticated Attack`
+### Physics Modeled
+- **Poisson photon statistics**: Signal ($\mu = 0.5$), decoy ($\nu = 0.1$), and vacuum intensities with probabilities 0.80/0.15/0.05
+- **Fiber channel loss**: Standard telecom model at 0.2 dB/km, distances 5–50 km
+- **Detector model**: Lumped efficiency $\eta_{\text{det}} = 0.15$, dark count probability $10^{-6}$ per gate, intrinsic misalignment error 0.015
 
----
+### Feature Vector (30 dimensions)
+| Category | Features |
+|----------|----------|
+| Session statistics | `Pulses_Sent`, `Total_Clicks`, `Sifted_Bits` |
+| QKD monitoring | `Base_Mismatch_Rate`, `QBER_Total`, `QBER_Z`, `QBER_X`, `Sifted_Bit_Entropy` |
+| Decoy-state gains | `Q_mu`, `Q_nu`, `Q_0` |
+| Per-intensity QBER | `E_mu`, `E_nu`, `E_0` |
+| Basis-conditional (signal) | `Q_mu_Z`, `Q_mu_X`, `E_mu_Z`, `E_mu_X` |
+| Raw counts | `Clicks_mu`, `Clicks_nu`, `Clicks_0`, `DetMatch_mu`, `DetMatch_nu`, `DetMatch_0` |
+| Hardware monitors | `Rx_Power_Mean`, `Rx_Power_Std`, `Timing_Mean_us`, `Timing_Std_us`, `Double_Click_Rate`, `Monitor_Alarm_Rate` |
 
-## ⚙️ Hybrid Architecture & Machine Learning Pipeline
-To ensure absolute scientific defense against peer review critique, the pipeline comprehensively eradicates **Data Leakage** by strictly isolating normalization bounds *post-split*. Testing variance never bleeds into training geometry.
+`Distance_km` is stored for analysis but excluded from ML input features.
 
-The pipeline mathematically maps distinct architectural strategies:
+### Attack Classes (8 total)
+| Class | Observable Signature |
+|-------|---------------------|
+| `normal` | Baseline WCP exchange |
+| `mitm_attack` | Elevated QBER; timing jitter increase |
+| `pns_attack` | Single-photon yield suppression; distorted $Q_\nu/Q_\mu$ ratio |
+| `trojan_horse_attack` | Elevated Rx optical power; increased alarm rate |
+| `wavelength_dependent_trojan_attack` | Basis-dependent efficiency asymmetry |
+| `rng_attack` | Reduced sifted-bit entropy; basis bias |
+| `detector_blinding_attack` | Very high Rx power; QBER → 0; double-click rate → 0 |
+| `combined_attack` | Multi-feature distortion (PNS + MITM + Trojan elements) |
 
-### 1. Extractive Feature Profiling
-Rigorous classical regression identifying spatial dependencies between `Yield_Decoy` drop-offs corresponding uniquely to PNS vectors and `Monitor_Intensity_Mean` bursts natively bound to side-channel laser probes.
+## ML Pipeline
 
-### 2. The Autoencoder Hybrid (The Explainable Architecture)
-A comprehensive topological fusion isolating absolute structural anomalies inherently balancing SOTA detection parameters with transparent analysis:
-*   A Deep Keras **Autoencoder** strictly learns the generalized physics of pristine `Normal` QKD yields and error tolerances, compressing signals into a rigid 16-dimensional latent bottleneck.
-*   By projecting all traffic through this bottleneck, we extract deterministic **Mean Squared Error (MSE)** reconstruction bounds perfectly spiking across eavesdropper arrays where anomalous optical power or suppressed single-photons shatter normal bounds.
-*   These anomalies are horizontally piped backward into an independently tuned **Gradient Boosting (XGBoost)** tree cascade. This formulation trades a marginal mathematical accuracy gap against pure Deep Neural Networks (DNNs) in exchange for absolute **Explainability**, retaining transparent SHAP vectors structurally confirming *why* an anomaly triggered dynamically.
+### Architecture
+- **Autoencoder** (`30 → 64 → 32 → 16 → 32 → 64 → 30`): Trained only on normal sessions. Learns the latent manifold of legitimate BB84 statistics. Reconstruction MSE serves as anomaly score.
+- **Hybrid XGBoost**: Classifies the concatenation of original features (30) + latent vector (16) + MSE (1) = 47-dimensional input
+- **DNN baseline**: 128–64–32–16 dense network with LeakyReLU, batch normalization, and dropout
 
----
+### Data Leakage Prevention
+StandardScaler is fit exclusively on the training split (80%) and applied to the test split (20%). The autoencoder is trained only on the normal-class subset of the training data.
 
-## 📊 Result Discussion & Thermodynamic Convergence
-Using an exhaustive `RandomizedSearchCV` cross-validation strategy explicitly validated across post-split boundaries, we isolate identical spatial geometries.
+## Running the Pipeline
 
-### The Scientific Significance:
-Because physical vulnerabilities directly impose classical thermodynamic costs across multiple distinct tracking features (e.g. Eve cannot spoof Bob's clicks efficiently without introducing enormous optical illumination thresholds measured by `Monitor_Intensity`), the hybridized model successfully untangles complex background noise to classify interception natively. This definitively verifies that Deep Learning latent bottlenecks effectively filter generic depolarization variances, freeing structural gradients to perfectly identify highly constrained physical discrepancies mimicking adversarial extraction algorithms natively.
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-## 📈 Visualizations & Evaluation Plots
-Inside the `models/plots/` repository, the automated pipeline generates empirical verifications capturing the continuous mathematical evaluation:
+# Full pipeline (default: 1000 sessions/class)
+bash run_pipeline.sh
 
-![Mechanistic Attack Signatures](models/plots/attack_signatures_across_observables.png)
-*A flagship 4-panel graphic directly tracking physical relationships mathematically overriding distance degradation limits via log-ratios ($R_Q = Y_{\nu}/Y_{\mu}$).*
+# Paper-quality run (5000 sessions/class)
+bash run_pipeline.sh 5000 10000
+```
 
-*   `architecture_comparison.png`: Empirically contrasting the natively unrestrained Deep Neural Network ($\sim88.88\%$) natively against our Hybrid pipeline and standalone boundary classifiers.
-*   `hybrid_feature_importance.png`: Graphically establishing the absolute dominance of the Autoencoder's MSE reconstruction bounds driving XGBoost topological mappings alongside native physical measurements like `Yield_Decoy` and `QBER`.
-*   `confusion_matrix.png`: Absolute class separation mapping demonstrating overlapping vectors and false positives corresponding inherently to highly identical physical signatures.
-*   `roc_curves.png`: Receiver Operating Characteristic limits evaluating the hybridized algorithm across all 8 tracking modes.
+### Pipeline Steps
+1. `generate_qkd_dataset.py` — Monte Carlo simulation
+2. `feature_engineering.py` — Label encoding
+3. `model_training.py` — Autoencoder + hybrid XGBoost training
+4. `hyperparameter_tuning.py` — RandomizedSearchCV + evaluation plots
+5. `baseline_comparison.py` — Standalone XGBoost and DNN comparison
+6. `adversarial_attack.py` — White-box gradient evasion test
+7. `mechanistic_signatures.py` — Physical observable plots
+8. `shap_analysis.py` — SHAP explainability analysis
+
+## Output Plots
+
+All plots are saved to `models/plots/`:
+
+| Plot | Description |
+|------|-------------|
+| `attack_signatures_across_observables.png` | 4-panel scatter/KDE of physical observables by attack class |
+| `hybrid_feature_importance.png` | XGBoost feature importance on the 47-dim hybrid input |
+| `roc_curves.png` | One-vs-rest ROC curves for all 8 classes |
+| `confusion_matrix.png` | Test-set confusion matrix |
+| `architecture_comparison.png` | Accuracy comparison across three architectures |
+| `adversarial_evasion.png` | Detection rate before/after gradient evasion |
+| `paper_figures/shap_summary_bar.png` | SHAP global feature importance |
+
+## Reproducibility
+
+All results are reproducible with fixed random seed (`seed=42`, `random_state=42` throughout). Tested with Python 3.12, TensorFlow 2.x, XGBoost 2.x, scikit-learn 1.x.
+
+## License
+
+MIT License — see [LICENSE](LICENSE).

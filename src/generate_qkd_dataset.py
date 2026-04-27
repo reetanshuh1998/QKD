@@ -225,6 +225,19 @@ def simulate_session(cfg: SessionConfig, rng: np.random.Generator, label: str) -
         p_click = np.where(is_single, p_click * (1.0 - block_single_prob), p_click)
         p_click = np.where(is_multi, np.clip(p_click * boost_multi, 0.0, 1.0), p_click)
 
+    # ---- Double-click model ----
+    # Double clicks occur when both detectors fire on the same pulse.
+    # Driven by multi-photon events splitting across detectors + independent dark counts.
+    # p_double ≈ p_click * p_dark + (for n≥2) contribution from photon splitting.
+    p_double_base = p_click * cfg.p_dark + np.where(n >= 2, 0.5 * np.power(eta_sys, 2) * (n * (n - 1)).astype(np.float64) / 2.0, 0.0)
+    p_double_base = np.clip(p_double_base, 0.0, 1.0)
+
+    if label == "detector_blinding_attack":
+        # Eve controls which detector fires → double clicks suppressed to near zero
+        p_double_base *= (1.0 - blinding_control_prob)
+
+    double_clicks = (rng.random(cfg.N) < p_double_base)
+
     # ---- Realize clicks ----
     clicked = (rng.random(cfg.N) < p_click)
 
@@ -371,6 +384,7 @@ def simulate_session(cfg: SessionConfig, rng: np.random.Generator, label: str) -
         "Rx_Power_Std": float(np.std(rx_samples)),
         "Timing_Mean_us": float(np.mean(t_samples)),
         "Timing_Std_us": float(np.std(t_samples)),
+        "Double_Click_Rate": float(np.sum(double_clicks)) / float(cfg.N),
         "Monitor_Alarm_Rate": float(alarm_rate),
 
         "Label": label,

@@ -1,110 +1,143 @@
-# Defending Quantum Key Distribution Against Intelligent Adversaries: An Adversarially-Resilient Autoencoder-Gradient Architecture for Decoy-State BB84
-
-**Target Journal:** IEEE Transactions on Information Forensics and Security / Nature Photonics
+# Adversarially Resilient Eavesdropper Detection in Decoy-State BB84 QKD via Hybrid Autoencoder–XGBoost Classification
 
 **Keywords:** Quantum Key Distribution (QKD), Decoy-State BB84 Protocol, Weak Coherent Pulses (WCP), Adversarial Machine Learning, Autoencoders, XGBoost, Physical Layer Security.
 
 ---
 
 ## Abstract
-Quantum Key Distribution (QKD) mathematically guarantees information-theoretic security heavily reliant on the laws of quantum mechanics. However, realistic deployment necessitates imperfect hardware, primarily Weak Coherent Pulses (WCP) utilizing heavily attenuated lasers and Avalanche Photodiodes (APDs). These classical imperfections structurally open QKD to deterministically engineered implementation vulnerabilities, such as Photon-Number Splitting (PNS), Time-Shift transmission delays, and intense-light Detector Blinding. While Machine Learning (ML) topologies are routinely trained on generic dataset abstracts to baseline system noise, they are historically trained on naive simulations lacking decoy-state yield physics, rendering their application incomplete and vulnerable to intelligent adversarial evasion (White-Box Gradient Spoofing).
 
-In this paper, we propose a functionally rigorous **Hybrid Autoencoder-Gradient Architecture** dynamically trained on an explicitly accurate, physics-driven Decoy-state BB84 WCP simulator. By extracting precise optical geometries—such as Signal/Decoy Yields, Double-Click Rates, and Continuous-Wave back-scatter Intensities—our network inherently maps actual thermodynamic anomalies triggered by leading hardware-layer intrusions. We route these highly-dimensional yield discrepancies through a dense Autoencoder latent bottleneck to seamlessly filter generic depolarizing variances natively. The reconstructed Mean Squared Error (MSE) is vertically pipelined into a rigidly non-continuous gradient classifier (XGBoost). Our empirical results prove standard Deep Neural Networks (DNN) peak precisely around $\sim88.4\%$; yet our transparent Hybrid model closely matches this boundary ($\sim86.6\%$) structurally allowing critical SHAP explainability matrices bounding each quantum physics variable natively preventing black-box isolation. Moreover, subjecting this hybrid pipeline to native continuous-gradient Adversarial Evasion completely fails to puncture the defense layer; the Autoencoder's fluid optimization bounds directly cascade into the non-differentiable decision boundaries of XGBoost, permanently blinding AI-driven eavesdroppers from identifying bypass gradients. 
+Quantum Key Distribution (QKD) offers information-theoretic security grounded in quantum mechanics, yet practical implementations using Weak Coherent Pulse (WCP) sources and avalanche photodiode (APD) detectors introduce exploitable hardware vulnerabilities. Attacks such as Photon-Number Splitting (PNS), detector blinding, and Trojan-horse probing can evade conventional Quantum Bit Error Rate (QBER) monitoring. Machine learning classifiers trained on simplistic simulations lack the physical fidelity of decoy-state protocols and remain vulnerable to gradient-based adversarial evasion.
+
+We present a hybrid detection architecture combining a deep autoencoder trained exclusively on normal QKD sessions with an XGBoost gradient-boosted classifier. The system is trained on a purpose-built Monte Carlo simulator implementing the three-intensity decoy-state BB84 protocol, producing 30 physically motivated session-level observables including per-intensity gains ($Q_\mu$, $Q_\nu$, $Q_0$), basis-conditional QBERs, double-click rates, and optical power monitor readings. Eight operational classes—one normal and seven attack scenarios—are distinguished. The autoencoder compresses the 30-dimensional input to a 16-dimensional latent representation; the per-sample reconstruction MSE serves as an anomaly score. The concatenated 47-dimensional hybrid feature vector is classified by XGBoost. In benchmarking, a standalone DNN achieves the highest accuracy, while the hybrid model achieves comparable performance with the added benefit of SHAP-based feature-level interpretability. Critically, gradient-based adversarial evasion attacks that successfully fool the autoencoder fail to transfer through XGBoost's non-differentiable decision boundaries, demonstrating structural robustness against white-box adversaries.
 
 ---
 
 ## I. Introduction
-Quantum Key Distribution guarantees unconditional data privacy inherently anchored in Bell's Theorem and the No-Cloning limits. The foundational BB84 protocol leverages classical statistical monitoring—typically Quantum Bit Error Rate (QBER)—to expose eavesdroppers. 
 
-Yet, practical quantum transmission heavily relies on Weak Coherent Pulses (WCP), inherently burdened with multi-photon emission events following strict Poisson distributions. Historically, adversaries have bypassed pure QBER analysis natively by employing Photon-Number Splitting (PNS) [1], stealing surplus photons inside multi-photon peaks without disrupting baseline error tolerances recursively. Hardware limits additionally enable Time-Shift protocols exploiting deterministic APD latencies [2], or APD Detector Blinding mapping bright continuous illumination natively pushing diodes into functional linear saturation limits [3].
+Quantum Key Distribution enables two parties to establish a shared secret key with security guaranteed by quantum mechanics. The BB84 protocol detects eavesdropping through statistical monitoring of the quantum bit error rate (QBER). In theory, any interception disturbs the quantum states and raises the QBER above a security threshold.
 
-Classical ML isolates operational anomaly boundaries well but fails dynamically when targeted directly by intelligent adversarial evasion algorithms—eavesdroppers injecting noise vectors mathematically designed to parallelize normal operational bounds natively minimizing deep neural network (DNN) detection outputs [4].
+In practice, QKD systems use attenuated laser sources producing Weak Coherent Pulses (WCP), which follow Poisson photon-number statistics and occasionally emit multi-photon pulses. An adversary can exploit these multi-photon events via Photon-Number Splitting (PNS) attacks [1], extracting key information without measurably increasing the QBER. Additional hardware-layer attacks include detector blinding [3], Trojan-horse probing [5], and timing-channel exploits [2].
 
-This paper resolves this exact topology vulnerability natively. We present a defense algorithm piping mathematically precise physical optical measurements (Decoy yields, cross-talk double-clicks) through a structural Autoencoder compression metric, capped horizontally by a non-gradient dependent XGBoost evaluator, fundamentally resolving continuous adversarial injection vectors [5].
+The decoy-state protocol [6, 7] mitigates PNS attacks by transmitting pulses at multiple intensity levels and monitoring the per-intensity gains and error rates. However, sophisticated attacks targeting other hardware components may still evade decoy-state analysis alone.
 
----
+ML approaches offer a complementary detection layer but face two challenges: (1) training data must faithfully capture decoy-state physics, and (2) ML classifiers are susceptible to adversarial evasion [4]. Tree-based ensembles exhibit natural robustness to gradient-based evasion due to non-differentiable decision boundaries [5].
 
-## II. Simulated Dataset Generation & Physical Parameters
-
-To ensure our models scale seamlessly into legitimate optical environments, we bypassed theoretical toy-model abstractions natively building an 80,000-dimensional evaluation simulation. We strictly emulated the Decoy-state BB84 protocol utilizing WCP limits, accounting inherently for distance-based transmission losses (0.2 dB/km) and strict APD dark counts ($10^{-5}$). 
-
-### A. Evaluated Physical Variables
-We completely abandoned generic integer metrics, extracting continuous observables corresponding precisely to laboratory monitors:
-1.  **Yield_Signal & Yield_Decoy**: Crucial observables protecting WCP environments dynamically. An attacker executing PNS forces a drastic, asymmetrical plummet in decoy state transmissions inherently isolated here [6].
-2.  **QBER_Signal_X & QBER_Signal_Z**: Basis-localized error mappings extracting inherent mismatch geometries directly induced by simple Intercept-Resend interactions natively.
-3.  **Monitor_Intensity_Mean**: A theoretical parallel APD continuously tracking incoming laser flux, mathematically spiking aggressively during continuous-wave injections identifying Trojon-horse and Blinding algorithms immediately. 
-4.  **Double_Click_Rate**: Natively measures cross-talk anomalies and dark count overlays natively flat-lining to zero under deterministic APD blinding limits.
-5.  **Timing_Jitter_Mean**: Explicit limits observing spatial transition shifts forced by physical hardware redirection loops inherently blocking Time-Shift operations natively.
-6.  **Sifted_Bit_Bias & Bob_Basis_Bias**: Observables determining native Random Number Generator anomalies naturally tracking structural degradation locally predicting Eve's initial control algorithms natively.
-
-### B. Tested Attack Frameworks
-*   `Normal`: Un-tethered operational states containing generic Depolarizing variances.
-*   `MITM`: Intercept-Resend models.
-*   `PNS`: Heavy suppression targeting 1-photon yield metrics.
-*   `Detector Blinding`: High monitor intensities matched with absolute error suppression natively controlling structural mapping bounds.
-*   `Trojan Horse (and Wavelength variants)`: Heavy structural shifts across basis choice metrics overlapping intense incoming reflection values.
-*   `RNG Bias`: Artificial probability shifts.
-*   `Combined Sophisticated Vectors`.
-
-![Mechanistic Attack Signatures across Physical Observables](models/plots/attack_signatures_across_observables.png)
-*Fig 1. A 4-Panel Mechanistic Evaluation completely overriding identical attenuation limits natively mapping Yield Ratios ($R_Q$), Power Distributions, and Timing Variance dynamically identifying specific attack vectors outside arbitrary boundary classifications.*
+This paper addresses both challenges by constructing a physics-faithful simulator and a hybrid autoencoder–XGBoost architecture providing both accuracy and adversarial resilience.
 
 ---
 
-## III. The Hybrid Machine Learning Architecture
+## II. Dataset Generation
 
-To combat evasive optimization parameters natively mapping back-propagation logic natively minimizing detection, the pipeline is split structurally prohibiting continuous leakage across boundaries.
+### A. Decoy-State BB84 Simulator
 
-### A. Deep Feature Extraction (Autoencoder Bottleneck)
-We establish a 256-128-64 hierarchical Keras Deep Autoencoder specifically trained *exclusively* targeting `Normal` operational boundaries isolating expected dark counts natively across distance tolerances.
-When the Autoencoder reconstructs incoming data arrays, deviation from the pristine BB84 physical geometry directly creates a measurable **Mean Squared Error (MSE)** vector. A Blinding attack—despite matching bits perfectly—drastically diverges Yield formulas forcing immense reconstruction explosions natively isolated by MSE bounds.
+We implement a session-level Monte Carlo simulator for the three-intensity decoy-state BB84 protocol. Each session generates $N = 10,000$ pulses with the following model:
 
-![Feature Importance Extraction](models/plots/hybrid_feature_importance.png)
-*Fig 2. Demonstration identifying how MSE dynamically overrides generic feature mappings natively ensuring structural detection natively.*
+- **Photon-number sampling**: $n \sim \text{Poisson}(\mu)$ with $\mu = 0.5$ (signal), $\nu = 0.1$ (decoy), $0$ (vacuum); selected with probabilities 0.80/0.15/0.05
+- **Channel transmission**: $\eta_{\text{ch}} = 10^{-\alpha d / 10}$, $\alpha = 0.2$ dB/km, $d \in [5, 50]$ km
+- **Detector model**: $\eta_{\text{det}} = 0.15$, $p_{\text{dark}} = 10^{-6}$, $e_{\text{misalign}} = 0.015$
+- **Click probability**: $p_{\text{click}} = 1 - (1 - (1 - (1-\eta_{\text{sys}})^n))(1 - p_{\text{dark}})$
 
-### B. Structural Classification (Gradient Boosting / XGBoost)
-The output Latent Geometry and MSE vectors merge with the raw observational arrays creating a multi-dimensional matrix. This mathematically diverse feature mapping targets XGBoost, iteratively optimizing stochastic gradients internally evaluating orthogonal decision boundaries systematically immune to spatial deformation topologies natively blocking gradient-based evasion loops natively. 
+Distance is used internally for channel loss but excluded from ML features.
 
----
+### B. Session-Level Observables (30 features)
 
-## IV. Benchmark Evaluation & Empirical Outcomes
+| Category | Features |
+|----------|----------|
+| Session statistics | `Pulses_Sent`, `Total_Clicks`, `Sifted_Bits` |
+| QKD monitoring | `Base_Mismatch_Rate`, `QBER_Total`, `QBER_Z`, `QBER_X`, `Sifted_Bit_Entropy` |
+| Decoy-state gains | `Q_mu`, `Q_nu`, `Q_0` |
+| Per-intensity QBER | `E_mu`, `E_nu`, `E_0` |
+| Basis-conditional | `Q_mu_Z`, `Q_mu_X`, `E_mu_Z`, `E_mu_X` |
+| Raw counts | `Clicks_mu`, `Clicks_nu`, `Clicks_0`, `DetMatch_mu`, `DetMatch_nu`, `DetMatch_0` |
+| Hardware monitors | `Rx_Power_Mean`, `Rx_Power_Std`, `Timing_Mean_us`, `Timing_Std_us`, `Double_Click_Rate`, `Monitor_Alarm_Rate` |
 
-We executed extensive evaluation blocks testing natively via exhaustive topological search algorithms systematically separating accuracy geometries globally.
+### C. Attack Classes
 
-### Empirical Convergence Ceiling
-*   **Standalone Gradient Boosting (XGBoost):** 85.94%
-*   **Hybrid Autoencoder + XGBoost:** 85.88%
-*   **Deep Neural Network (150-Epoch Dense LeakyReLU & ReduceLROnPlateau):** **88.88%**
+| Class | Primary Signature |
+|-------|-------------------|
+| Normal | Baseline |
+| MITM | ↑ QBER, ↑ timing jitter |
+| PNS | Suppressed single-photon yield, distorted $Q_\nu/Q_\mu$ |
+| Trojan Horse | ↑ Rx power, ↑ alarm rate |
+| Wavelength-Dep. Trojan | $Q_{\mu,Z} \neq Q_{\mu,X}$ asymmetry |
+| RNG Bias | ↓ sifted-bit entropy, basis imbalance |
+| Detector Blinding | ↑↑ Rx power, QBER → 0, double clicks → 0 |
+| Combined | Multi-feature distortion |
 
-Because physically disparate execution networks repeatedly evaluate identically adjacent to current validation barriers, we establish empirical correlation proving highly dimensional Continuous Neural Networks (DNN) statistically dominate Decoy-State mapping distributions perfectly natively. However, implementing our distinct Autoencoder+XGBoost fusion captures near-maximum SOTA capacities completely discarding opaque neural computations. In explicit QKD environments, establishing verifiable transparency is objectively critical.
-
-![Receiver Operating Characteristics](models/plots/roc_curves.png)
-*Fig 3. ROC metrics explicitly evaluating multi-class classification limits globally identifying precise AUC topological constraints locally predicting intrusion parameters optimally.*
-
----
-
-## V. Adversarial Evasion Immunity (The AI Eavesdropper)
-
-We finalized testing simulating an advanced artificially intelligent adversary explicitly deploying White-Box structural gradient spoofing internally manipulating `Monitor_Intensity_Mean` values dynamically to systematically brute-force neural parameters mimicking `Normal` states. 
-
-### Phenomenal Adversarial Resilience
-In generic extraction arrays mapping Continuous prediction mappings dynamically, Eve aggressively minimized output probabilities collapsing system detection globally toward zero natively [4]. However, executing our Hybrid evaluation boundary effectively halted the evasion natively!
-
-Because generic continuous limits strictly map differentiable variables, an adversary perfectly evaluates optimal gradient shifting limits isolating precise detection boundaries natively predicting structural collapses completely. Our tree structures natively utilize strictly orthogonal logic hyperplanes systematically breaking the continuous mathematical scaling required structurally mapping evasion natively.
-
-**Conclusion:** Eve essentially forces gradient adjustments directly into the Autoencoder boundary; however, the secondary XGBoost array evaluating explicit, disjoint spatial matrices intrinsically overrides spoofed latency anomalies explicitly identifying the exact permutation inherently immunizing the hardware locally mapping future topological defenses natively.
+![Mechanistic Attack Signatures](models/plots/attack_signatures_across_observables.png)
+*Fig 1. Attack signatures across physical observables: (A) decoy consistency, (B) yield ratio density, (C) optical power vs. alarm rate, (D) timing distribution.*
 
 ---
 
-## VI. Conclusion
-Standard neural classification systems isolate implementation vulnerabilities optimally evaluating absolute accuracy ceilings ($\sim88.88\%$), yet operate fundamentally opaque 'black boxes' rendering native protocol evaluation fundamentally unsafe natively. Utilizing a highly rigorous Decoy-state BB84 generator masking raw distance propagation limits natively ($R_Q = Y_{\nu}/Y_{\mu}$), we essentially verified Hybrid execution models intrinsically trading fractional detection accuracies in exchange for totally explainable boundaries structurally mapping native spatial variables precisely. This formally blindfolds AI-driven continuous parameter manipulations natively stopping White-Box iteration globally while preserving strictly readable verification environments dynamically sealing real-world Quantum Key layer implementation architectures.
+## III. Hybrid Architecture
+
+### A. Autoencoder Feature Extraction
+
+Architecture: $30 \to 64 \to 32 \to 16 \to 32 \to 64 \to 30$ with batch normalization and ReLU. Trained exclusively on normal-class training data with MSE loss, Adam optimizer, early stopping (patience 5). The 16-dimensional latent vector and per-sample reconstruction MSE provide anomaly-sensitive features.
+
+### B. Hybrid Feature Construction
+
+Original 30 scaled features + 16 latent dimensions + 1 MSE scalar = **47-dimensional hybrid vector**.
+
+### C. XGBoost Classification
+
+XGBoost (300 estimators, max depth 8, learning rate 0.05) trained on the hybrid vector. Hyperparameters refined via 3-fold stratified RandomizedSearchCV (10 iterations). Tree-based classification provides SHAP interpretability [8] and non-differentiable decision boundaries.
+
+![Feature Importance](models/plots/hybrid_feature_importance.png)
+*Fig 2. XGBoost feature importance showing contributions from physical features, latent dimensions, and reconstruction MSE.*
+
+---
+
+## IV. Results
+
+### Classification Performance
+
+| Architecture | Test Accuracy |
+|-------------|---------------|
+| Standalone XGBoost | 85.94% |
+| Hybrid (AE + XGBoost) | 85.88% |
+| Deep Neural Network | **88.88%** |
+
+The DNN achieves the highest accuracy through end-to-end optimization. The hybrid model trades a small accuracy margin for SHAP interpretability and adversarial resilience.
+
+![ROC Curves](models/plots/roc_curves.png)
+*Fig 3. One-vs-rest ROC curves with per-class AUC.*
+
+### SHAP Explainability
+
+SHAP TreeExplainer reveals that reconstruction MSE, decoy-state gains, and optical power monitors are the most discriminative features, consistent with the expected physics of PNS and Trojan-horse attacks.
+
+---
+
+## V. Adversarial Resilience
+
+A white-box adversary with full autoencoder access applies 40 epochs of gradient descent (Adam, lr=0.08) to minimize reconstruction MSE, attempting to disguise attack traffic as normal. While this reduces the autoencoder's anomaly score, XGBoost maintains detection because: (1) gradients cannot propagate through tree-based decision boundaries, and (2) raw physical features retain attack signatures that the trees detect independently.
+
+---
+
+## VI. Limitations
+
+- Simulator models fiber loss and dark counts but not depolarization, phase noise, or finite-key effects
+- Dataset is synthetic; experimental validation is needed
+- MITM timing perturbation models generic interception delay, not a physically distinct time-shift attack
+
+---
+
+## VII. Conclusion
+
+We demonstrated a hybrid autoencoder–XGBoost architecture for QKD eavesdropper detection trained on a physics-faithful decoy-state BB84 simulator. The hybrid model provides comparable accuracy to DNNs with SHAP interpretability and structural immunity to gradient-based adversarial evasion.
 
 ---
 
 ### References
-[1] G. Brassard, N. Lütkenhaus, T. Mor, and B. C. Sanders, "Limitations on practical quantum cryptography," *Phys. Rev. Lett.*, 2000.  
-[2] B. Qi, C. H. F. Fung, H.-K. Lo, and X. Ma, "Time-shift attack in practical quantum key distribution systems," *Quantum Inform. Comput.*, 2007.  
-[3] L. Lydersen, et al., "Hacking commercial quantum cryptography systems by tailored bright illumination," *Nature Photon.*, 2010.  
-[4] I. J. Goodfellow, J. Shlens, and C. Szegedy, "Explaining and harnessing adversarial examples," *ICLR*, 2015.  
-[5] H. Chen, et al., "Robust Decision Trees Against Adversarial Examples," *ICML*, 2019.  
-[6] X. Ma, B. Qi, Y. Zhao, and H. Lo, "Practical decoy state for quantum key distribution," *Phys. Rev. A*, 2005.
+
+[1] G. Brassard et al., "Limitations on practical quantum cryptography," *Phys. Rev. Lett.*, 2000.
+[2] B. Qi et al., "Time-shift attack in practical quantum cryptosystems," *Quantum Inf. Comput.*, 2007.
+[3] L. Lydersen et al., "Hacking commercial quantum cryptography systems," *Nature Photon.*, 2010.
+[4] I. J. Goodfellow et al., "Explaining and harnessing adversarial examples," *ICLR*, 2015.
+[5] H. Chen et al., "Robust decision trees against adversarial examples," *ICML*, 2019.
+[6] H.-K. Lo, X. Ma, and K. Chen, "Decoy state quantum key distribution," *Phys. Rev. Lett.*, 2005.
+[7] X. Ma et al., "Practical decoy state for quantum key distribution," *Phys. Rev. A*, 2005.
+[8] S. M. Lundberg and S.-I. Lee, "A unified approach to interpreting model predictions," *NeurIPS*, 2017.
+[9] T. Chen and C. Guestrin, "XGBoost: A scalable tree boosting system," *KDD*, 2016.
+[10] N. Gisin et al., "Quantum cryptography," *Rev. Mod. Phys.*, 2002.
